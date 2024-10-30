@@ -29,11 +29,24 @@ jobs:
           rm -rf core/*
           mkdir -p core
 
-      - name: Download Linux AMD64
+      - name: Download Linux AMD64 & Compatible Versions
         run: |
+          # AMD64 Standard
           curl -L -o core/mihomo-linux-amd64-${{ steps.release.outputs.tag_name }}.gz \
           "https://github.com/MetaCubeX/mihomo/releases/download/${{ steps.release.outputs.tag_name }}/mihomo-linux-amd64-${{ steps.release.outputs.tag_name }}.gz"
           
+          # AMD64 Compatible
+          curl -L -o core/mihomo-linux-amd64-compatible-${{ steps.release.outputs.tag_name }}.gz \
+          "https://github.com/MetaCubeX/mihomo/releases/download/${{ steps.release.outputs.tag_name }}/mihomo-linux-amd64-compatible-${{ steps.release.outputs.tag_name }}.gz"
+          
+          # AMD64 Compatible Go120
+          curl -L -o core/mihomo-linux-amd64-compatible-go120-${{ steps.release.outputs.tag_name }}.gz \
+          "https://github.com/MetaCubeX/mihomo/releases/download/${{ steps.release.outputs.tag_name }}/mihomo-linux-amd64-compatible-go120-${{ steps.release.outputs.tag_name }}.gz"
+          
+          # AMD64 Compatible Go122
+          curl -L -o core/mihomo-linux-amd64-compatible-go122-${{ steps.release.outputs.tag_name }}.gz \
+          "https://github.com/MetaCubeX/mihomo/releases/download/${{ steps.release.outputs.tag_name }}/mihomo-linux-amd64-compatible-go122-${{ steps.release.outputs.tag_name }}.gz"
+
       - name: Download Linux ARM Versions
         run: |
           # ARM64
@@ -47,20 +60,6 @@ jobs:
           # ARMv5
           curl -L -o core/mihomo-linux-armv5-${{ steps.release.outputs.tag_name }}.gz \
           "https://github.com/MetaCubeX/mihomo/releases/download/${{ steps.release.outputs.tag_name }}/mihomo-linux-armv5-${{ steps.release.outputs.tag_name }}.gz"
-
-      - name: Download Linux Compatible Versions
-        run: |
-          # AMD64 Compatible
-          curl -L -o core/mihomo-linux-amd64-compatible-${{ steps.release.outputs.tag_name }}.gz \
-          "https://github.com/MetaCubeX/mihomo/releases/download/${{ steps.release.outputs.tag_name }}/mihomo-linux-amd64-compatible-${{ steps.release.outputs.tag_name }}.gz"
-          
-          # AMD64 Compatible Go120
-          curl -L -o core/mihomo-linux-amd64-compatible-go120-${{ steps.release.outputs.tag_name }}.gz \
-          "https://github.com/MetaCubeX/mihomo/releases/download/${{ steps.release.outputs.tag_name }}/mihomo-linux-amd64-compatible-go120-${{ steps.release.outputs.tag_name }}.gz"
-          
-          # AMD64 Compatible Go122  
-          curl -L -o core/mihomo-linux-amd64-compatible-go122-${{ steps.release.outputs.tag_name }}.gz \
-          "https://github.com/MetaCubeX/mihomo/releases/download/${{ steps.release.outputs.tag_name }}/mihomo-linux-amd64-compatible-go122-${{ steps.release.outputs.tag_name }}.gz"
 
       - name: Commit and push changes
         run: |
