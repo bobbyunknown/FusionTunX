@@ -16,6 +16,7 @@ jobs:
         
       - name: Download latest datfiles
         run: |
+          rm -rf datfiles
           mkdir -p datfiles
           cd datfiles
           
