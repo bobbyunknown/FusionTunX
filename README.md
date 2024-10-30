@@ -19,8 +19,7 @@
 ### Instalasi
 
 #### Metode Manual
-- Unduh paket instalasi dari [Release](https://github.com/bobbyunknown/luci-app-insomclash/releases) [![Release](https://img.shields.io/github/v/release/bobbyunknown/luci-app-insomclash?style=flat-square)](https://github.com/bobbyunknown/luci-app-insomclash/releases)
-
+- Unduh paket instalasi dari [Release](https://github.com/bobbyunknown/luci-app-insomclash/releases)
 #### Metode Auto Install
 - Jalankan perintah berikut di terminal:
 ```bash
