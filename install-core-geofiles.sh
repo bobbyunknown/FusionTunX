@@ -1,6 +1,11 @@
 #!/bin/sh
 
-# Definisi path yang benar
+# Copyright (c) 2023 bobbyunknown
+# https://github.com/bobbyunknown
+# 
+# Hak Cipta Dilindungi Undang-Undang
+# https://rem.mit-license.org/
+
 CORE_PATH="/etc/insomclash/core"
 DAT_PATH="/etc/insomclash/run"
 
@@ -10,7 +15,6 @@ REPO_URL="https://api.github.com/repos/bobbyunknown/luci-app-insomclash/contents
 mkdir -p "$CORE_PATH"
 mkdir -p "$DAT_PATH"
 
-# Fungsi untuk deteksi arsitektur
 detect_arch() {
     case $(uname -m) in
         x86_64)
@@ -32,13 +36,10 @@ detect_arch() {
     esac
 }
 
-# Fungsi untuk mendapatkan versi terbaru
 get_latest_version() {
     local arch=$(detect_arch)
-    # Gunakan curl untuk mengambil daftar file dari API GitHub
     local api_response=$(curl -s "https://api.github.com/repos/bobbyunknown/luci-app-insomclash/contents/core")
     
-    # Parse JSON response untuk mendapatkan versi terbaru
     local latest_version=$(echo "$api_response" | grep -o "mihomo-linux-${arch}-v[0-9.]*\.gz" | sort -V | tail -n1 | sed -E 's/.*-v([0-9.]+)\.gz/v\1/')
     
     if [ -z "$latest_version" ]; then
@@ -49,7 +50,6 @@ get_latest_version() {
     echo "$latest_version"
 }
 
-# Install Core
 install_core() {
     local arch=$(detect_arch)
     local version=$(get_latest_version)
@@ -77,7 +77,6 @@ install_core() {
     fi
 }
 
-# Install file DAT
 install_dat_files() {
     local base_url="https://raw.githubusercontent.com/bobbyunknown/luci-app-insomclash/main/datfiles"
     
@@ -91,7 +90,6 @@ install_dat_files() {
     done
 }
 
-# Jalankan instalasi
 echo "Memulai instalasi..."
 install_core
 install_dat_files
