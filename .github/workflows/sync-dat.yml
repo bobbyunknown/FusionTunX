@@ -12,33 +12,24 @@ jobs:
       contents: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         
       - name: Download latest datfiles
         run: |
           mkdir -p datfiles
           cd datfiles
           
-          for file in country-lite.mmdb country.mmdb geoip-lite.dat geoip-lite.db geoip-lite.metadb geoip.dat; do
-            echo "Downloading $file..."
-            wget -q https://github.com/rtaserver/meta-rules-dat/releases/latest/download/$file || {
-              echo "Error downloading $file"
-              exit 1
-            }
-          done
+          wget -q https://github.com/rtaserver/meta-rules-dat/releases/latest/download/country-lite.mmdb
+          wget -q https://github.com/rtaserver/meta-rules-dat/releases/latest/download/country.mmdb
+          wget -q https://github.com/rtaserver/meta-rules-dat/releases/latest/download/geoip-lite.dat
+          wget -q https://github.com/rtaserver/meta-rules-dat/releases/latest/download/geoip-lite.db
+          wget -q https://github.com/rtaserver/meta-rules-dat/releases/latest/download/geoip-lite.metadb
+          wget -q https://github.com/rtaserver/meta-rules-dat/releases/latest/download/geoip.dat
           
       - name: Commit dan Push perubahan
         run: |
-          if git diff --quiet datfiles/; then
-            echo "Tidak ada perubahan pada datfiles"
-            exit 0
-          fi
-          
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add datfiles/
-          git commit -m "Update datfiles $(date +'%Y-%m-%d %H:%M:%S')"
-          git push origin main || {
-            echo "Error saat push ke repository"
-            exit 1
-          }
+          git commit -m "Update datfiles $(date +'%Y-%m-%d %H:%M:%S')" || exit 0
+          git push origin main
