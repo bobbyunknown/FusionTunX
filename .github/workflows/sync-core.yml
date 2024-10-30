@@ -76,7 +76,7 @@ jobs:
         id: commit_msg
         run: |
           echo "message<<EOF" >> $GITHUB_OUTPUT
-          echo "Sync mihomo core to ${{ steps.release.outputs.version }}
+          echo "chore(core): sync mihomo core to ${{ steps.release.outputs.version }}
 
           Auto-sync core files from MetaCubeX/mihomo
           Release date: ${{ steps.release.outputs.date }}
