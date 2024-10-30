@@ -12,7 +12,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
+        with:
+          ref: main
+          fetch-depth: 0
+
       - name: Get latest release info
         id: release
         uses: actions/github-script@v7
@@ -87,6 +90,7 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
+          git checkout main
           git add core/
           git commit -m "${{ steps.commit_msg.outputs.message }}"
-          git push 
+          git push origin main
