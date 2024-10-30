@@ -16,11 +16,15 @@
 - Yacd panel
 - Filemanager, edit config, proxy, dan upload
 
-### Install
-- Install manual silakan download di [![Release](https://img.shields.io/github/v/release/bobbyunknown/luci-app-insomclash)](https://github.com/bobbyunknown/luci-app-insomclash/releases)
-- Auto install
-```
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/bobbyunknown/luci-app-insomclash/refs/heads/main/install.sh)"
+### Instalasi
+
+#### Metode Manual
+- Unduh paket instalasi dari [Release](https://github.com/bobbyunknown/luci-app-insomclash/releases) [![Release](https://img.shields.io/github/v/release/bobbyunknown/luci-app-insomclash?style=flat-square)](https://github.com/bobbyunknown/luci-app-insomclash/releases)
+
+#### Metode Auto Install
+- Jalankan perintah berikut di terminal:
+```bash
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/bobbyunknown/luci-app-insomclash/main/install.sh)"
 ```
 
 ### Lokasi Direktori
