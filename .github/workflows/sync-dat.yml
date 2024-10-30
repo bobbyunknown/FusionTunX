@@ -13,10 +13,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-        with:
-          ref: datfiles
-          fetch-depth: 0
-          
+        
       - name: Download latest datfiles
         run: |
           mkdir -p datfiles
@@ -35,4 +32,4 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git add datfiles/
           git commit -m "Update datfiles $(date +'%Y-%m-%d %H:%M:%S')" || exit 0
-          git push origin datfiles
+          git push origin main

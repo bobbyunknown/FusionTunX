@@ -2,8 +2,6 @@ name: Build IPK
 
 on:
   push:
-    branches:
-      - main
     paths:
       - 'Makefile'
   workflow_dispatch:
@@ -11,7 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
 
@@ -56,7 +53,7 @@ jobs:
           fi
 
       - name: Buat Rilis
-        if: env.BUILD_FAILED != 'true' && github.ref == 'refs/heads/main'
+        if: env.BUILD_FAILED != 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -83,7 +80,7 @@ jobs:
             --generate-notes=false
 
       - name: Unggah IPK
-        if: env.BUILD_FAILED != 'true' && github.ref == 'refs/heads/main'
+        if: env.BUILD_FAILED != 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
