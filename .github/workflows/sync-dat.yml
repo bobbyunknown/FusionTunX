@@ -25,6 +25,10 @@ jobs:
           wget -q https://github.com/rtaserver/meta-rules-dat/releases/latest/download/geoip-lite.db
           wget -q https://github.com/rtaserver/meta-rules-dat/releases/latest/download/geoip-lite.metadb
           wget -q https://github.com/rtaserver/meta-rules-dat/releases/latest/download/geoip.dat
+          wget -q https://github.com/rtaserver/meta-rules-dat/releases/latest/download/geosite.dat
+          wget -q https://github.com/rtaserver/meta-rules-dat/releases/latest/download/geosite.db
+          wget -q https://github.com/rtaserver/meta-rules-dat/releases/latest/download/geosite-lite.dat
+          wget -q https://github.com/rtaserver/meta-rules-dat/releases/latest/download/geosite-lite.db
           
       - name: Commit dan Push perubahan
         run: |
