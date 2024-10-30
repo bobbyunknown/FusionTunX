@@ -25,6 +25,43 @@
 ```bash
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/bobbyunknown/luci-app-insomclash/main/install.sh)"
 ```
+### Core dan Geofiles
+
+#### Core
+
+**Untuk (x86_64):**
+- mihomo-linux-amd64
+- mihomo-linux-amd64-compatible
+- mihomo-linux-amd64-compatible
+- mihomo-linux-amd64-compatible
+
+**Untuk ARM:**
+- mihomo-linux-arm64
+- mihomo-linux-armv7
+- mihomo-linux-armv5
+
+> ⚠️ **Penting**: Pilih core yang sesuai dengan arsitektur CPU perangkat Anda untuk performa optimal
+
+### Cara Install Core 
+1. Download core yang sesuai
+2. Extract file `.gz`
+3. Rename menjadi `mihomo`
+4. Upload ke direktori `/etc/insomclash/core`
+
+### Database Geolokasi 
+| File | Deskripsi | Ukuran |
+|------|-----------|--------|
+| `country.mmdb` | Database MaxMind lengkap | Besar |
+| `country-lite.mmdb` | Database MaxMind ringkas | Kecil |
+| `geoip.dat` | GeoIP format DAT lengkap | Besar |
+| `geoip-lite.dat` | GeoIP format DAT ringkas | Kecil |
+| `geoip-lite.db` | GeoIP format DB optimized | Kecil |
+| `geoip-lite.metadb` | Metadata GeoIP | Minimal |
+
+> 💡 **Tips**: Gunakan versi "lite" untuk menghemat penyimpanan dengan tetap mendapatkan fungsi utama
+
+Untuk panduan lengkap penggunaan GEOSITE dan GEOIP, silakan kunjungi [dokumentasi resmi](https://github.com/bobbyunknown/luci-app-insomclash/blob/main/README-DAT.md)
+
 
 ### Lokasi Direktori
 | Jenis | Path |
@@ -62,4 +99,16 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/bobbyunknown/luci-app-in
 
 ![Stop](img/stop.png)
 </details>
+
+### Credit
+Terima kasih kepada:
+- Allah SWT
+- DBAI
+- IndoWRT
+- [MetaCubeX](https://github.com/MetaCubeX) untuk Core
+- [ZeroLab](https://github.com/zerolabnet/SSClash) untuk Routing
+- [RTA Server](https://github.com/rtaserver) untuk dat files
+
+
+
 
