@@ -35,8 +35,8 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/bobbyunknown/luci-app-in
 **Untuk (x86_64):**
 - mihomo-linux-amd64
 - mihomo-linux-amd64-compatible
-- mihomo-linux-amd64-compatible
-- mihomo-linux-amd64-compatible
+- mihomo-linux-amd64-compatible-go120
+- mihomo-linux-amd64-compatible-go122
 
 **Untuk ARM:**
 - mihomo-linux-arm64
