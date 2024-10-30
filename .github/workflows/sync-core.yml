@@ -75,22 +75,23 @@ jobs:
       - name: Create commit message
         id: commit_msg
         run: |
-          echo "message=chore(core): sync mihomo core to ${{ steps.release.outputs.version }}
+          echo "message<<EOF" >> $GITHUB_OUTPUT
+          echo "chore(core): sync mihomo core to ${{ steps.release.outputs.version }}
 
-          🔄 Auto-sync core files from MetaCubeX/mihomo
-          📅 Release date: ${{ steps.release.outputs.date }}
-          🏷️ Version: ${{ steps.release.outputs.version }}
+          Auto-sync core files from MetaCubeX/mihomo
+          Release date: ${{ steps.release.outputs.date }}
+          Version: ${{ steps.release.outputs.version }}
 
           Files updated:
           - AMD64 (Standard & Compatible)
           - AMD64 Go120 & Go122
           - ARM (v5, v7, arm64)" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Commit and push changes
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git checkout main
           git add core/
           git commit -m "${{ steps.commit_msg.outputs.message }}"
           git push origin main
