@@ -61,6 +61,10 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/bobbyunknown/luci-app-in
 | `geoip-lite.dat` | GeoIP format DAT ringkas | Kecil |
 | `geoip-lite.db` | GeoIP format DB optimized | Kecil |
 | `geoip-lite.metadb` | Metadata GeoIP | Minimal |
+| `geosite.dat` | GeoSite format DAT lengkap | Besar |
+| `geosite-lite.dat` | GeoSite format DAT ringkas | Kecil |
+| `geosite.db` | GeoSite format DB lengkap | Besar |
+| `geosite-lite.db` | GeoSite format DB ringkas | Kecil |
 
 > 💡 **Tips**: Gunakan versi "lite" untuk menghemat penyimpanan dengan tetap mendapatkan fungsi utama
 
