@@ -118,20 +118,12 @@ geodata-mode: true
 geodata-loader: memconservative
 external-controller: 0.0.0.0:9090
 external-ui: ui
-
 dns:
   enable: true
   listen: 0.0.0.0:7874
   ipv6: false
-  default-nameserver: 
-    - '1.1.1.1'
-    - '1.0.0.1'
-    - '8.8.8.8'
-    - '8.8.4.4'
-  nameserver: 
-    - 'https://cloudflare-dns.com/dns-query'
-    - 'https://dns.google/dns-query'
-
+  default-nameserver: ['1.1.1.1', '1.0.0.1', '8.8.8.8', '8.8.4.4']
+  nameserver: ['https://cloudflare-dns.com/dns-query', 'https://dns.google/dns-query']
 profile:
   store-selected: true
   store-fake-ip: true
