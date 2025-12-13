@@ -68,6 +68,7 @@ define Package/insomclash/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/insomclash $(1)/usr/share/insomclash/insomclash
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/mihomo $(1)/usr/bin/mihomo
 
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/app.yaml $(1)/etc/insomclash/
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/country.mmdb $(1)/etc/insomclash/
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/geoip.dat $(1)/etc/insomclash/
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/geosite.dat $(1)/etc/insomclash/
@@ -81,6 +82,7 @@ define Package/insomclash/install
 endef
 
 define Package/insomclash/conffiles
+/etc/insomclash/app.yaml
 /etc/insomclash/configs/config.yaml
 /etc/insomclash/proxy_providers/proxy.yaml
 /etc/insomclash/rule_providers/rule.yaml
