@@ -142,11 +142,3 @@ nbproject/
 *.lock
 *.pid
 .vscode-ctags
-
-#OPENWRT PACKAGES FILES
-openwrt/core/*.ipk
-openwrt/core/*.apk
-
-# BINARY FILES
-core/*
-!core/.gitkeep
