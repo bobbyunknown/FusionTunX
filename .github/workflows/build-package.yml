@@ -1,7 +1,17 @@
-name: Build Insomclash Core
+name: Build Insomclash Packages
 
 on:
   workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release Tag'
+        required: true
+        default: 'v1.0.0'
+      publish:
+        description: 'Publish to Release?'
+        type: boolean
+        required: true
+        default: true
   push:
     branches:
       - main
@@ -169,5 +179,32 @@ jobs:
         with:
           name: insomclash-all-packages
           path: downloaded/**/*
+
+      - name: Create Release and Upload Assets
+        uses: softprops/action-gh-release@v1
+        if: ${{ inputs.publish == true }}
+        with:
+          tag_name: ${{ inputs.tag_name }}
+          body: |
+            # Insomclash Release ${{ inputs.tag_name }}
+            
+            This release contains pre-built packages for OpenWrt and Debian/Ubuntu.
+            
+            ## 📦 Package Details
+            - **OpenWrt**: `.ipk` (Stable) and `.apk` (Snapshot).
+            - **Debian/Ubuntu**: `.deb` packages for `amd64`, `arm64`, `armhf`.
+            
+            ## 🚀 How to Install
+            
+            **OpenWrt:**
+            Download the appropriate `.ipk` or `.apk` and install via `opkg install` or `apk install`.
+            
+            **Debian/Ubuntu:**
+            Download `.deb` and run `dpkg -i insomclash_*.deb`.
+            
+            See [README](https://github.com/${{ github.repository }}) for full documentation.
+          files: downloaded/**/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
