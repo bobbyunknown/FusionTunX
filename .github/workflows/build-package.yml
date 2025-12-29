@@ -49,11 +49,11 @@ jobs:
 
       - name: Setup Feed Structure
         run: |
-          mkdir -p feeds/insomclash/insomclash
-          mkdir -p feeds/insomclash/luci-app-insomclash
-          cp -f openwrt/insomclash/Makefile feeds/insomclash/insomclash/
-          cp -rf files feeds/insomclash/insomclash/
-          cp -rf openwrt/luci-app-insomclash/* feeds/insomclash/luci-app-insomclash/
+          mkdir -p feeds/insomclash
+          mkdir -p feeds/luci-app-insomclash
+          cp -f openwrt/insomclash/Makefile feeds/insomclash/
+          cp -rf files feeds/insomclash/
+          cp -rf openwrt/luci-app-insomclash/* feeds/luci-app-insomclash/
 
       - name: Build Package
         uses: openwrt/gh-action-sdk@main
