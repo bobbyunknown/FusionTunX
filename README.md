@@ -15,7 +15,7 @@
 
 **Insomclash** adalah controller dan manager yang ringan namun powerful untuk core **Mihomo** (Clash Meta), dirancang khusus untuk sistem **OpenWrt** dan **Linux Server** (seperti Debian/Ubuntu/Arch Linux). Aplikasi ini memudahkan Anda dalam mengelola koneksi proxy dengan kemampuan routing tingkat lanjut serta antarmuka web modern.
 
-Repository ini berfungsi sebagai **pusat build dan packaging resmi** untuk Insomclash, mendukung OpenWrt (IPK/APK) dan Debian/Ubuntu (DEB).
+Repository ini berfungsi sebagai **pusat build dan packaging resmi** untuk Insomclash, mendukung OpenWrt (IPK/APK), Debian/Ubuntu (DEB), dan Arch Linux (PKG).
 
 ## 🌟 Fitur Utama
 
@@ -98,6 +98,22 @@ Arsitektur yang didukung: **amd64**, **arm64**, **armhf**.
     ```
 4.  File konfigurasi terletak di `/etc/insomclash/`.
 
+### Arch Linux
+
+Arsitektur yang didukung: **x86_64**, **aarch64**, **armv7h**.
+
+1.  **Download** paket `.pkg.tar.zst` dari halaman [Releases](https://github.com/bobbyunknown/Insomclash/releases).
+2.  Install menggunakan `pacman`:
+    ```bash
+    sudo pacman -U insomclash-*.pkg.tar.zst
+    ```
+3.  Layanan akan berjalan otomatis. Anda bisa mengelolanya via systemd:
+    ```bash
+    sudo systemctl status insomclash
+    sudo systemctl restart insomclash
+    ```
+4.  File konfigurasi terletak di `/etc/insomclash/`.
+
 ## 🛠️ Build dari Source
 
 Repository ini berisi logika build dan packaging.
@@ -107,7 +123,7 @@ Repository ini berisi logika build dan packaging.
 *   `make`, `curl`, `wget`, `git`
 
 ### Build Semua Paket
-Untuk mem-build semuanya (Paket OpenWrt + Paket Debian) secara lokal:
+Untuk mem-build semuanya (Paket OpenWrt + Paket Debian + Paket Arch Linux) secara lokal:
 
 ```bash
 # Clone repo ini
@@ -118,7 +134,7 @@ cd Insomclash
 make build-all
 ```
 
-Hasil build (Artifact) akan tersimpan di folder `build/` (untuk Debian) dan `bin/` (untuk OpenWrt).
+Hasil build (Artifact) akan tersimpan di folder `build/` (untuk Debian dan Arch Linux) dan `bin/` (untuk OpenWrt).
 
 ## 📄 Lisensi
 

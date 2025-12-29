@@ -15,7 +15,7 @@
 
 **Insomclash** is a lightweight yet powerful controller and manager for the **Mihomo** (Clash Meta) core, designed specifically for **OpenWrt** and **Linux Server** (such as Debian/Ubuntu/Arch Linux) systems. This application facilitates easy proxy connection management with advanced routing capabilities and a modern web interface.
 
-This repository serves as the **official build and packaging center** for Insomclash, supporting OpenWrt (IPK/APK) and Debian/Ubuntu (DEB).
+This repository serves as the **official build and packaging center** for Insomclash, supporting OpenWrt (IPK/APK), Debian/Ubuntu (DEB), and Arch Linux (PKG).
 
 ## 🌟 Key Features
 
@@ -98,6 +98,22 @@ Supported architectures: **amd64**, **arm64**, **armhf**.
     ```
 4.  Configuration files are located in `/etc/insomclash/`.
 
+### Arch Linux
+
+Supported architectures: **x86_64**, **aarch64**, **armv7h**.
+
+1.  **Download** the `.pkg.tar.zst` package from the [Releases](https://github.com/bobbyunknown/Insomclash/releases) page.
+2.  Install using `pacman`:
+    ```bash
+    sudo pacman -U insomclash-*.pkg.tar.zst
+    ```
+3.  The service will start automatically. You can manage it via systemd:
+    ```bash
+    sudo systemctl status insomclash
+    sudo systemctl restart insomclash
+    ```
+4.  Configuration files are located in `/etc/insomclash/`.
+
 ## 🛠️ Build from Source
 
 This repository contains the build capability and packaging logic.
@@ -107,7 +123,7 @@ This repository contains the build capability and packaging logic.
 *   `make`, `curl`, `wget`, `git`
 
 ### Build All Packages
-To build everything (OpenWrt Packages + Debian Packages) locally:
+To build everything (OpenWrt Packages + Debian Packages + Arch Linux Packages) locally:
 
 ```bash
 # Clone this repo
@@ -118,7 +134,7 @@ cd Insomclash
 make build-all
 ```
 
-Build results (Artifacts) will be stored in the `build/` folder (for Debian) and `bin/` (for OpenWrt).
+Build results (Artifacts) will be stored in the `build/` folder (for Debian and Arch Linux) and `bin/` (for OpenWrt).
 
 ## 📄 License
 
