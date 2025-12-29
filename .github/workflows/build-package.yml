@@ -52,10 +52,9 @@ jobs:
 
       - name: Setup Feed Structure
         run: |
-          mkdir -p feeds/insomclash/insomclash/core
+          mkdir -p feeds/insomclash/insomclash
           mkdir -p feeds/insomclash/luci-app-insomclash
           cp -f openwrt/insomclash/Makefile feeds/insomclash/insomclash/
-          cp -f core/insomclash-linux-* feeds/insomclash/insomclash/core/
           cp -rf files feeds/insomclash/insomclash/
           cp -rf openwrt/luci-app-insomclash/* feeds/insomclash/luci-app-insomclash/
 
