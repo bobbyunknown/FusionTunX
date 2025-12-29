@@ -16,9 +16,6 @@ on:
     branches:
       - main
 
-env:
-  MIHOMO_VERSION: v1.19.17
-
 jobs:
   build_openwrt:
     permissions:
@@ -31,7 +28,7 @@ jobs:
       matrix:
         branch:
           - openwrt-24.10
-          - SNAPSHOT
+          - openwrt-25.12
         arch:
           - x86_64
           - i386_pentium-mmx
@@ -68,13 +65,19 @@ jobs:
           NO_SHFMT_CHECK: 1
           KEY_BUILD: ${{ secrets.SIGNING_KEY_SEC }}
 
+
       - name: Organize Artifacts
         run: |
           mkdir -p output
-          find bin/packages -name "insomclash_*.ipk" -exec cp {} output/ \;
-          find bin/packages -name "luci-app-insomclash_*.ipk" -exec cp {} output/ \;
-          find bin/packages -name "luci-app-insomclash-*.apk" -exec cp {} output/ \;
-          find bin/packages -name "insomclash-*.apk" -exec sh -c 'cp {} output/insomclash-${{ matrix.branch }}-${{ matrix.arch }}.apk' \;
+          if [[ "${{ matrix.branch }}" == "openwrt-24.10" ]]; then
+            # OpenWrt 24.10 uses IPK
+            find bin/packages -name "insomclash_*.ipk" -exec cp {} output/ \;
+            find bin/packages -name "luci-app-insomclash_*.ipk" -exec cp {} output/ \;
+          else
+            # OpenWrt 25.12 uses APK
+            find bin/packages -name "insomclash-*.apk" -exec cp {} output/ \;
+            find bin/packages -name "luci-app-insomclash-*.apk" -exec cp {} output/ \;
+          fi
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
@@ -169,7 +172,7 @@ jobs:
             This release contains pre-built packages for OpenWrt, Debian/Ubuntu, and Arch Linux.
             
             ## 📦 Package Details
-            - **OpenWrt**: `.ipk` (Stable 24.10) and `.apk` (Snapshot) packages
+            - **OpenWrt**: `.ipk` (24.10) and `.apk` (25.12) packages
             - **Debian/Ubuntu**: `.deb` packages for `amd64`, `arm64`, `armhf`
             - **Arch Linux**: `.pkg.tar.zst` packages for `x86_64`, `aarch64`, `armv7h`
             
@@ -177,10 +180,10 @@ jobs:
             
             **OpenWrt:**
             ```bash
-            # For stable (24.10)
+            # For 24.10 (IPK)
             opkg install insomclash_*.ipk
             
-            # For snapshot
+            # For 25.12 (APK)
             apk add insomclash-*.apk
             ```
             

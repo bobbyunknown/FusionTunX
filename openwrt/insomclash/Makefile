@@ -53,7 +53,7 @@ define Package/insomclash
   CATEGORY:=Network
   TITLE:=Insomclash Core + Mihomo
   URL:=https://github.com/bobbyunknown/Insomclash
-  DEPENDS:=+ca-bundle +ip-full +kmod-tun +kmod-nft-core +kmod-nft-nat +kmod-nft-tproxy +kmod-ipt-nat +iptables-nft +kmod-nft-socket +xtables-nft
+  DEPENDS:=+ca-bundle +ip-full +kmod-tun +kmod-nft-core +kmod-nft-nat +kmod-nft-tproxy +kmod-nft-socket
 endef
 
 define Package/insomclash/description
