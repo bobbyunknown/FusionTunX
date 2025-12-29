@@ -80,7 +80,7 @@ jobs:
           else
             # OpenWrt 25.12 uses APK
             find bin/packages -name "insomclash-*.apk" ! -name "luci-app-*" -exec sh -c 'cp "$1" "output/insomclash-${{ matrix.arch }}.apk"' sh {} \;
-            find bin/packages -name "luci-app-insomclash-*.apk" -exec sh -c 'cp "$1" "output/luci-app-insomclash-${{ matrix.arch }}.apk"' sh {} \;
+            find bin/packages -name "luci-app-insomclash-*.apk" -exec cp {} output/ \;
           fi
 
       - name: Upload Artifacts
