@@ -2,12 +2,17 @@
 
 PKG_NAME:=insomclash
 PKG_VERSION:=1.0.3
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 PKG_MAINTAINER:=BobbyUnknown
 PKG_DESC:=Insomclash Core + Mihomo
 PKG_ARCH_AMD64:=amd64
 PKG_ARCH_ARM64:=arm64
 PKG_ARCH_ARMHF:=armhf
+
+# Arch Linux Architecture Mappings
+PKG_ARCH_ARCH_X86_64:=x86_64
+PKG_ARCH_ARCH_AARCH64:=aarch64
+PKG_ARCH_ARCH_ARMV7H:=armv7h
 
 BUILD_DIR:=build
 CORE_DIR:=core
@@ -33,9 +38,13 @@ URL_GEOIP_DAT:=https://github.com/rtaserver/meta-rules-dat/releases/latest/downl
 URL_GEOSITE:=https://github.com/rtaserver/meta-rules-dat/releases/latest/download/geosite.dat
 URL_GEOIP_META:=https://github.com/rtaserver/meta-rules-dat/releases/download/latest/geoip.metadb
 
-.PHONY: all clean download-assets deb-amd64 deb-arm64 deb-armhf build-all
+.PHONY: all clean download-assets deb-amd64 deb-arm64 deb-armhf arch-x86_64 arch-aarch64 arch-armv7h build-all build-deb build-arch
 
-all: deb-amd64 deb-arm64 deb-armhf
+all: build-deb build-arch
+
+build-deb: deb-amd64 deb-arm64 deb-armhf
+
+build-arch: arch-x86_64 arch-aarch64 arch-armv7h
 
 build-all: all
 
@@ -171,3 +180,105 @@ deb-arm64: download-assets
 
 deb-armhf: download-assets
 	$(call build_deb,$(PKG_ARCH_ARMHF),$(BIN_ARMHF),$(MIHOMO_ARCH_ARMHF))
+
+# Template for building Arch Linux package
+# Usage: $(call build_arch, ARCH, INSOMCLASH_BINARY, MIHOMO_ARCH_STRING)
+define build_arch
+	@echo "Building Arch package for $(1)..."
+	$(eval PKG_DIR := $(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)-$(PKG_RELEASE)-$(1))
+	rm -rf $(PKG_DIR)
+	mkdir -p $(PKG_DIR)/usr/share/insomclash
+	mkdir -p $(PKG_DIR)/usr/bin
+	mkdir -p $(PKG_DIR)/etc/insomclash
+	mkdir -p $(PKG_DIR)/usr/lib/systemd/system
+
+	# Copy Insomclash Binary
+	@if [ -f $(CORE_DIR)/$(2) ]; then \
+		cp $(CORE_DIR)/$(2) $(PKG_DIR)/usr/share/insomclash/insomclash; \
+		chmod +x $(PKG_DIR)/usr/share/insomclash/insomclash; \
+	else \
+		echo "Error: $(CORE_DIR)/$(2) not found!"; \
+		exit 1; \
+	fi
+
+	# Download and Copy Mihomo Binary
+	@echo "Processing Mihomo binary for $(1)..."
+	@if [ ! -f $(BUILD_DIR)/assets/mihomo-$(1) ]; then \
+		echo "Downloading Mihomo $(MIHOMO_VERSION) for $(1)..."; \
+		wget -q -O $(BUILD_DIR)/assets/mihomo-$(1).gz $(MIHOMO_URL_BASE)/$(3)-$(MIHOMO_VERSION).gz; \
+		gunzip $(BUILD_DIR)/assets/mihomo-$(1).gz; \
+		chmod +x $(BUILD_DIR)/assets/mihomo-$(1); \
+	fi
+	cp $(BUILD_DIR)/assets/mihomo-$(1) $(PKG_DIR)/usr/bin/mihomo
+	chmod +x $(PKG_DIR)/usr/bin/mihomo
+
+	# Copy Config Files
+	cp -r $(FILES_DIR)/* $(PKG_DIR)/etc/insomclash/
+	
+	# Copy Assets
+	cp $(BUILD_DIR)/assets/*.mmdb $(PKG_DIR)/etc/insomclash/ || true
+	cp $(BUILD_DIR)/assets/*.dat $(PKG_DIR)/etc/insomclash/ || true
+	cp $(BUILD_DIR)/assets/*.metadb $(PKG_DIR)/etc/insomclash/ || true
+	cp -r $(BUILD_DIR)/assets/ui $(PKG_DIR)/etc/insomclash/
+
+	# Create Systemd Service
+	echo "[Unit]" > $(PKG_DIR)/usr/lib/systemd/system/insomclash.service
+	echo "Description=Insomclash Service" >> $(PKG_DIR)/usr/lib/systemd/system/insomclash.service
+	echo "After=network.target" >> $(PKG_DIR)/usr/lib/systemd/system/insomclash.service
+	echo "" >> $(PKG_DIR)/usr/lib/systemd/system/insomclash.service
+	echo "[Service]" >> $(PKG_DIR)/usr/lib/systemd/system/insomclash.service
+	echo "ExecStart=/usr/share/insomclash/insomclash -c /etc/insomclash/app.yaml" >> $(PKG_DIR)/usr/lib/systemd/system/insomclash.service
+	echo "Restart=always" >> $(PKG_DIR)/usr/lib/systemd/system/insomclash.service
+	echo "RestartSec=5" >> $(PKG_DIR)/usr/lib/systemd/system/insomclash.service
+	echo "User=root" >> $(PKG_DIR)/usr/lib/systemd/system/insomclash.service
+	echo "" >> $(PKG_DIR)/usr/lib/systemd/system/insomclash.service
+	echo "[Install]" >> $(PKG_DIR)/usr/lib/systemd/system/insomclash.service
+	echo "WantedBy=multi-user.target" >> $(PKG_DIR)/usr/lib/systemd/system/insomclash.service
+
+	# Create .PKGINFO
+	echo "pkgname = $(PKG_NAME)" > $(PKG_DIR)/.PKGINFO
+	echo "pkgver = $(PKG_VERSION)-$(PKG_RELEASE)" >> $(PKG_DIR)/.PKGINFO
+	echo "pkgdesc = $(PKG_DESC)" >> $(PKG_DIR)/.PKGINFO
+	echo "url = https://github.com/BobbyUnknown/Insomclash" >> $(PKG_DIR)/.PKGINFO
+	echo "builddate = $$(date +%s)" >> $(PKG_DIR)/.PKGINFO
+	echo "packager = $(PKG_MAINTAINER)" >> $(PKG_DIR)/.PKGINFO
+	echo "size = $$(du -sb $(PKG_DIR) | cut -f1)" >> $(PKG_DIR)/.PKGINFO
+	echo "arch = $(1)" >> $(PKG_DIR)/.PKGINFO
+	echo "depend = iproute2" >> $(PKG_DIR)/.PKGINFO
+	echo "depend = ca-certificates" >> $(PKG_DIR)/.PKGINFO
+	echo "depend = iptables" >> $(PKG_DIR)/.PKGINFO
+	echo "depend = nftables" >> $(PKG_DIR)/.PKGINFO
+
+	# Create .install script
+	echo "post_install() {" > $(PKG_DIR)/.INSTALL
+	echo "    systemctl daemon-reload" >> $(PKG_DIR)/.INSTALL
+	echo "    systemctl enable insomclash" >> $(PKG_DIR)/.INSTALL
+	echo "    systemctl start insomclash || true" >> $(PKG_DIR)/.INSTALL
+	echo "}" >> $(PKG_DIR)/.INSTALL
+	echo "" >> $(PKG_DIR)/.INSTALL
+	echo "post_upgrade() {" >> $(PKG_DIR)/.INSTALL
+	echo "    systemctl daemon-reload" >> $(PKG_DIR)/.INSTALL
+	echo "    systemctl restart insomclash || true" >> $(PKG_DIR)/.INSTALL
+	echo "}" >> $(PKG_DIR)/.INSTALL
+	echo "" >> $(PKG_DIR)/.INSTALL
+	echo "pre_remove() {" >> $(PKG_DIR)/.INSTALL
+	echo "    systemctl stop insomclash || true" >> $(PKG_DIR)/.INSTALL
+	echo "    systemctl disable insomclash || true" >> $(PKG_DIR)/.INSTALL
+	echo "}" >> $(PKG_DIR)/.INSTALL
+
+	# Create .MTREE (file list)
+	cd $(PKG_DIR) && find . -type f -o -type l | LC_ALL=C sort | sed 's/^\.\///' > .MTREE
+
+	# Build Package (create tar.zst archive)
+	cd $(PKG_DIR) && tar -cf - .PKGINFO .INSTALL .MTREE usr etc | zstd -19 -T0 -q -o ../$(PKG_NAME)-$(PKG_VERSION)-$(PKG_RELEASE)-$(1).pkg.tar.zst
+	@echo "Package created at $(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)-$(PKG_RELEASE)-$(1).pkg.tar.zst"
+endef
+
+arch-x86_64: download-assets
+	$(call build_arch,$(PKG_ARCH_ARCH_X86_64),$(BIN_AMD64),$(MIHOMO_ARCH_AMD64))
+
+arch-aarch64: download-assets
+	$(call build_arch,$(PKG_ARCH_ARCH_AARCH64),$(BIN_ARM64),$(MIHOMO_ARCH_ARM64))
+
+arch-armv7h: download-assets
+	$(call build_arch,$(PKG_ARCH_ARCH_ARMV7H),$(BIN_ARMHF),$(MIHOMO_ARCH_ARMHF))
