@@ -15,6 +15,10 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'Makefile'
+      - 'openwrt/insomclash/Makefile'
+      - 'openwrt/luci-app-insomclash/Makefile'
 
 jobs:
   build_openwrt:
@@ -75,8 +79,8 @@ jobs:
             find bin/packages -name "luci-app-insomclash_*.ipk" -exec cp {} output/ \;
           else
             # OpenWrt 25.12 uses APK
-            find bin/packages -name "insomclash-*.apk" -exec cp {} output/ \;
-            find bin/packages -name "luci-app-insomclash-*.apk" -exec cp {} output/ \;
+            find bin/packages -name "insomclash-*.apk" ! -name "luci-app-*" -exec sh -c 'cp "$1" "output/insomclash-${{ matrix.arch }}.apk"' sh {} \;
+            find bin/packages -name "luci-app-insomclash-*.apk" -exec sh -c 'cp "$1" "output/luci-app-insomclash-${{ matrix.arch }}.apk"' sh {} \;
           fi
 
       - name: Upload Artifacts
