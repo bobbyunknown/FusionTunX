@@ -33,6 +33,7 @@ jobs:
         uses: dawidd6/action-download-artifact@v3
         with:
           run_id: ${{ inputs.workflow_run_id }}
+          name: insomclash-all-packages
           path: downloaded
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
