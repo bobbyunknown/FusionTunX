@@ -35,10 +35,16 @@ jobs:
           go install github.com/swaggo/swag/cmd/swag@latest
           echo "$HOME/go/bin" >> $GITHUB_PATH
 
-      - name: Install Dependencies
+      - name: Download Go Dependencies
+        run: |
+          cd src
+          go mod download
+          go mod tidy
+
+      - name: Install Build Dependencies
         run: sudo apt-get update && sudo apt-get install -y make wget curl unzip tar binutils zstd
 
-      - name: Build All Packages (Debian + Arch)
+      - name: Build All Packages
         run: make build-all
 
       - name: Upload Debian Packages
@@ -53,7 +59,7 @@ jobs:
           name: fusiontunx-arch
           path: build/*.pkg.tar.zst
 
-      - name: Upload Core Binaries for OpenWrt
+      - name: Upload Core Binaries
         uses: actions/upload-artifact@v4
         with:
           name: fusiontunx-core-binaries
@@ -63,7 +69,7 @@ jobs:
     needs: build_packages
     permissions:
       contents: write
-    name: Build OpenWrt ${{ matrix.arch }}-${{ matrix.branch }}
+    name: Build OpenWrt ${{ matrix.arch }} (${{ matrix.branch }})
     runs-on: ubuntu-latest
     continue-on-error: true
     strategy:
@@ -163,7 +169,7 @@ jobs:
           name: fusiontunx-all-packages-${{ github.ref_name }}
           path: downloaded/**/*
 
-      - name: Create Release and Upload Assets
+      - name: Create Release
         uses: softprops/action-gh-release@v1
         if: ${{ (github.ref == 'refs/heads/main' && inputs.publish == true) || (github.event_name == 'workflow_dispatch' && inputs.publish == true) }}
         with:
