@@ -49,7 +49,6 @@ coverage.xml
 *.cover
 
 bin/
-pkg/
 *.test
 *.prof
 
