@@ -1,6 +1,6 @@
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=insomclash
+PKG_NAME:=fusiontunx
 PKG_VERSION:=1.0.3
 PKG_RELEASE:=2
 
@@ -12,60 +12,60 @@ MIHOMO_VERSION:=v1.19.17
 
 include $(INCLUDE_DIR)/package.mk
 
-# Architecture mapping for insomclash binary
+# Architecture mapping for fusiontunx binary
 ifeq ($(ARCH),x86_64)
-  INSOMCLASH_ARCH:=amd64
+  FUSIONTUNX_ARCH:=amd64
   MIHOMO_ARCH:=amd64-v1
 else ifeq ($(ARCH),i386)
-  INSOMCLASH_ARCH:=386
+  FUSIONTUNX_ARCH:=386
   MIHOMO_ARCH:=386
 else ifeq ($(ARCH),aarch64)
-  INSOMCLASH_ARCH:=arm64
+  FUSIONTUNX_ARCH:=arm64
   MIHOMO_ARCH:=arm64
 else ifeq ($(ARCH),arm)
-  INSOMCLASH_ARCH:=armv7
+  FUSIONTUNX_ARCH:=armv7
   MIHOMO_ARCH:=armv7
 else ifeq ($(ARCH),mips)
-  INSOMCLASH_ARCH:=mips
+  FUSIONTUNX_ARCH:=mips
   MIHOMO_ARCH:=mips-softfloat
 else ifeq ($(ARCH),mipsel)
-  INSOMCLASH_ARCH:=mipsle
+  FUSIONTUNX_ARCH:=mipsle
   MIHOMO_ARCH:=mipsle-softfloat
 else ifeq ($(ARCH),mips64)
-  INSOMCLASH_ARCH:=mips64
+  FUSIONTUNX_ARCH:=mips64
   MIHOMO_ARCH:=mips64
 else ifeq ($(ARCH),mips64el)
-  INSOMCLASH_ARCH:=mips64le
+  FUSIONTUNX_ARCH:=mips64le
   MIHOMO_ARCH:=mips64le
 else ifeq ($(ARCH),riscv64)
-  INSOMCLASH_ARCH:=riscv64
+  FUSIONTUNX_ARCH:=riscv64
   MIHOMO_ARCH:=riscv64
 else
-  INSOMCLASH_ARCH:=amd64
+  FUSIONTUNX_ARCH:=amd64
   MIHOMO_ARCH:=amd64-v1
 endif
 
-# Source directories (relative to package root, not openwrt/insomclash)
+# Source directories (relative to package root, not openwrt/fusiontunx)
 PKG_SOURCE_DIR:=$(CURDIR)/../..
 
-define Package/insomclash
+define Package/fusiontunx
   SECTION:=net
   CATEGORY:=Network
-  TITLE:=Insomclash Core + Mihomo
-  URL:=https://github.com/bobbyunknown/Insomclash
+  TITLE:=FusionTunX Core + Mihomo
+  URL:=https://github.com/bobbyunknown/FusionTunX
   DEPENDS:=+ca-bundle +ip-full +kmod-tun +kmod-nft-core +kmod-nft-nat +kmod-nft-tproxy +kmod-nft-socket
 endef
 
-define Package/insomclash/description
-  Insomclash + Mihomo Core Binary
+define Package/fusiontunx/description
+  FusionTunX + Mihomo Core Binary
 endef
 
 define Build/Prepare
 	mkdir -p $(PKG_BUILD_DIR)
 	
-	@echo "Copying insomclash binary for $(ARCH) ($(INSOMCLASH_ARCH))..."
-	$(CP) $(PKG_SOURCE_DIR)/core/insomclash-linux-$(INSOMCLASH_ARCH) $(PKG_BUILD_DIR)/insomclash
-	chmod +x $(PKG_BUILD_DIR)/insomclash
+	@echo "Copying fusiontunx binary for $(ARCH) ($(FUSIONTUNX_ARCH))..."
+	$(CP) $(PKG_SOURCE_DIR)/core/fusiontunx-linux-$(FUSIONTUNX_ARCH) $(PKG_BUILD_DIR)/fusiontunx
+	chmod +x $(PKG_BUILD_DIR)/fusiontunx
 	
 	@echo "Downloading Mihomo $(MIHOMO_VERSION) for $(MIHOMO_ARCH)..."
 	wget -q -O $(PKG_BUILD_DIR)/mihomo.gz "https://github.com/MetaCubeX/mihomo/releases/download/$(MIHOMO_VERSION)/mihomo-linux-$(MIHOMO_ARCH)-$(MIHOMO_VERSION).gz"
@@ -103,35 +103,35 @@ endef
 define Build/Compile
 endef
 
-define Package/insomclash/install
+define Package/fusiontunx/install
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_DIR) $(1)/usr/share/insomclash
-	$(INSTALL_DIR) $(1)/etc/insomclash/configs
-	$(INSTALL_DIR) $(1)/etc/insomclash/proxy_providers
-	$(INSTALL_DIR) $(1)/etc/insomclash/rule_providers
-	$(INSTALL_DIR) $(1)/etc/insomclash/ui
+	$(INSTALL_DIR) $(1)/usr/share/fusiontunx
+	$(INSTALL_DIR) $(1)/etc/fusiontunx/configs
+	$(INSTALL_DIR) $(1)/etc/fusiontunx/proxy_providers
+	$(INSTALL_DIR) $(1)/etc/fusiontunx/rule_providers
+	$(INSTALL_DIR) $(1)/etc/fusiontunx/ui
 
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/insomclash $(1)/usr/share/insomclash/insomclash
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/fusiontunx $(1)/usr/share/fusiontunx/fusiontunx
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/mihomo $(1)/usr/bin/mihomo
 
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/app.yaml $(1)/etc/insomclash/
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/country.mmdb $(1)/etc/insomclash/
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/geoip.dat $(1)/etc/insomclash/
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/geosite.dat $(1)/etc/insomclash/
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/geoip.metadb $(1)/etc/insomclash/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/app.yaml $(1)/etc/fusiontunx/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/country.mmdb $(1)/etc/fusiontunx/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/geoip.dat $(1)/etc/fusiontunx/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/geosite.dat $(1)/etc/fusiontunx/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/geoip.metadb $(1)/etc/fusiontunx/
 
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/configs/* $(1)/etc/insomclash/configs/
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/proxy_providers/* $(1)/etc/insomclash/proxy_providers/
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/rule_providers/* $(1)/etc/insomclash/rule_providers/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/configs/* $(1)/etc/fusiontunx/configs/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/proxy_providers/* $(1)/etc/fusiontunx/proxy_providers/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/rule_providers/* $(1)/etc/fusiontunx/rule_providers/
 
-	$(CP) -r $(PKG_BUILD_DIR)/ui/* $(1)/etc/insomclash/ui/
+	$(CP) -r $(PKG_BUILD_DIR)/ui/* $(1)/etc/fusiontunx/ui/
 endef
 
-define Package/insomclash/conffiles
-/etc/insomclash/app.yaml
-/etc/insomclash/configs/config.yaml
-/etc/insomclash/proxy_providers/proxy.yaml
-/etc/insomclash/rule_providers/rule.yaml
+define Package/fusiontunx/conffiles
+/etc/fusiontunx/app.yaml
+/etc/fusiontunx/configs/config.yaml
+/etc/fusiontunx/proxy_providers/proxy.yaml
+/etc/fusiontunx/rule_providers/rule.yaml
 endef
 
-$(eval $(call BuildPackage,insomclash))
+$(eval $(call BuildPackage,fusiontunx))

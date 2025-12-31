@@ -23,20 +23,20 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=luci-app-insomclash
+PKG_NAME:=luci-app-fusiontunx
 PKG_VERSION:=1.0.3
 PKG_RELEASE:=2
 
 PKG_MAINTAINER:=BobbyUnknown <bobbyun.known88@gmail.com>
 
 LUCI_TITLE:=Luci Simple Tunnel Client for Mihomo
-LUCI_DEPENDS:=+insomclash
+LUCI_DEPENDS:=+fusiontunx
 LUCI_PKGARCH:=all
 
 PKG_LICENSE:=MIT
 PKG_LICENSE_FILES:=LICENSE
 
-RUN_DIR=/etc/insomclash
+RUN_DIR=/etc/fusiontunx
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -63,7 +63,7 @@ endef
 define Package/$(PKG_NAME)/install
 	# 1. Install Init Script
 	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) ./root/etc/init.d/insomclash $(1)/etc/init.d/insomclash
+	$(INSTALL_BIN) ./root/etc/init.d/fusiontunx $(1)/etc/init.d/fusiontunx
 
 	# 2. Install LuCI Files
 	$(INSTALL_DIR) $(1)/usr/share/luci/menu.d
@@ -72,23 +72,23 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/share/rpcd/acl.d
 	$(INSTALL_DATA) ./root/usr/share/rpcd/acl.d/* $(1)/usr/share/rpcd/acl.d/
 
-	$(INSTALL_DIR) $(1)/www/luci-static/resources/view/insomclash
-	$(INSTALL_DATA) ./root/www/luci-static/resources/view/insomclash/* $(1)/www/luci-static/resources/view/insomclash/
+	$(INSTALL_DIR) $(1)/www/luci-static/resources/view/fusiontunx
+	$(INSTALL_DATA) ./root/www/luci-static/resources/view/fusiontunx/* $(1)/www/luci-static/resources/view/fusiontunx/
 endef
 
 define Package/$(PKG_NAME)/postinst
 #!/bin/sh
 [ -n "$$IPKG_INSTROOT" ] || {
-	/etc/init.d/insomclash enable
-	/etc/init.d/insomclash start
+	/etc/init.d/fusiontunx enable
+	/etc/init.d/fusiontunx start
 }
 endef
 
 define Package/$(PKG_NAME)/prerm
 #!/bin/sh
 [ -n "$$IPKG_INSTROOT" ] || {
-	/etc/init.d/insomclash stop
-	/etc/init.d/insomclash disable
+	/etc/init.d/fusiontunx stop
+	/etc/init.d/fusiontunx disable
 }
 endef
 

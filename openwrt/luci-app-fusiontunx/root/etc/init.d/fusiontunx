@@ -4,11 +4,11 @@ START=99
 STOP=15
 USE_PROCD=1
 
-BIN_PATH="/usr/share/insomclash/insomclash"
-CONFIG_FILE="/etc/insomclash/app.yaml"
+BIN_PATH="/usr/share/fusiontunx/fusiontunx"
+CONFIG_FILE="/etc/fusiontunx/app.yaml"
 
 start_service() {
-    procd_open_instance insomclash
+    procd_open_instance fusiontunx
     procd_set_param command "$BIN_PATH" -c "$CONFIG_FILE"
     procd_set_param term_timeout 15 
     procd_set_param stdout 1
@@ -19,5 +19,5 @@ start_service() {
 }
 
 service_triggers() {
-    procd_add_reload_trigger "insomclash"
+    procd_add_reload_trigger "fusiontunx"
 }
