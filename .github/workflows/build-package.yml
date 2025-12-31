@@ -31,7 +31,9 @@ jobs:
           go-version: '1.23'
 
       - name: Install Swag
-        run: go install github.com/swaggo/swag/cmd/swag@latest
+        run: |
+          go install github.com/swaggo/swag/cmd/swag@latest
+          echo "$HOME/go/bin" >> $GITHUB_PATH
 
       - name: Install Dependencies
         run: sudo apt-get update && sudo apt-get install -y make wget curl unzip tar binutils zstd
@@ -85,8 +87,6 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        with:
-          
 
       - name: Download Core Binaries
         uses: actions/download-artifact@v4
@@ -112,16 +112,13 @@ jobs:
           NO_SHFMT_CHECK: 1
           KEY_BUILD: ${{ secrets.SIGNING_KEY_SEC }}
 
-
       - name: Organize Artifacts
         run: |
           mkdir -p output
           if [[ "${{ matrix.branch }}" == "openwrt-24.10" ]]; then
-            # OpenWrt 24.10 uses IPK
             find bin/packages -name "fusiontunx_*.ipk" -exec cp {} output/ \;
             find bin/packages -name "luci-app-fusiontunx_*.ipk" -exec cp {} output/ \;
           else
-            # OpenWrt 25.12 uses APK
             find bin/packages -name "fusiontunx-*.apk" ! -name "luci-app-*" -exec sh -c 'cp "$1" "output/fusiontunx-${{ matrix.arch }}.apk"' sh {} \;
             find bin/packages -name "luci-app-fusiontunx-*.apk" -exec cp {} output/ \;
           fi
@@ -163,12 +160,12 @@ jobs:
       - name: Upload Combined Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: fusiontunx-all-packages
+          name: fusiontunx-all-packages-${{ github.ref_name }}
           path: downloaded/**/*
 
       - name: Create Release and Upload Assets
         uses: softprops/action-gh-release@v1
-        if: ${{ inputs.publish == true }}
+        if: ${{ (github.ref == 'refs/heads/main' && inputs.publish == true) || (github.event_name == 'workflow_dispatch' && inputs.publish == true) }}
         with:
           tag_name: ${{ inputs.tag_name }}
           body: |
@@ -195,7 +192,7 @@ jobs:
             **Debian/Ubuntu:**
             ```bash
             sudo dpkg -i fusiontunx_*.deb
-            sudo apt-get install -f  # Fix dependencies if needed
+            sudo apt-get install -f
             ```
             
             **Arch Linux:**
@@ -207,5 +204,3 @@ jobs:
           files: downloaded/**/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
