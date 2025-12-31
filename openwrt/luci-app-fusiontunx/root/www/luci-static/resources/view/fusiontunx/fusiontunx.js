@@ -14,7 +14,7 @@ var callServiceList = rpc.declare({
 
 return view.extend({
     load: function () {
-        return fs.read('/etc/insomclash/app.yaml').then(function (content) {
+        return fs.read('/etc/fusiontunx/app.yaml').then(function (content) {
             var port = '8080';
             if (content) {
                 var match = content.match(/port:\s*["']?(\d+)["']?/);
@@ -30,7 +30,7 @@ return view.extend({
         var iframe = E('iframe', {
             'src': url,
             'style': 'width: 100%; min-height: 85vh; border: none; display: none;',
-            'title': 'InsomClash Dashboard'
+            'title': 'FusionTunX Dashboard'
         });
 
         var warning = E('div', {
@@ -38,12 +38,12 @@ return view.extend({
             'style': 'display: none; text-align: center; margin-top: 50px; padding: 30px;'
         }, [
             E('h3', { 'style': 'color: #d9534f;' }, _('Service is Not Running')),
-            E('p', { 'style': 'margin: 15px 0 25px;' }, _('The InsomClash backend service is currently stopped. Please start the service to access the dashboard.')),
+            E('p', { 'style': 'margin: 15px 0 25px;' }, _('The FusionTunX backend service is currently stopped. Please start the service to access the dashboard.')),
             E('div', {}, [
                 E('button', {
                     'class': 'cbi-button cbi-button-action',
                     'click': function () {
-                        window.location.href = L.url('admin', 'services', 'insomclash', 'server');
+                        window.location.href = L.url('admin', 'services', 'fusiontunx', 'server');
                     }
                 }, _('Go to Server Control'))
             ])
@@ -52,10 +52,10 @@ return view.extend({
         var container = E('div', {}, [warning, iframe]);
 
         var updateStatus = function () {
-            return callServiceList('insomclash').then(function (res) {
+            return callServiceList('fusiontunx').then(function (res) {
                 var running = false;
                 try {
-                    var instances = res.insomclash.instances;
+                    var instances = res.fusiontunx.instances;
                     for (var i in instances) {
                         if (instances[i].running) {
                             running = true;

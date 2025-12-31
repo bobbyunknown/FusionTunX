@@ -14,7 +14,7 @@ var callServiceList = rpc.declare({
 
 return view.extend({
     load: function () {
-        return fs.read('/etc/insomclash/app.yaml').then(function (content) {
+        return fs.read('/etc/fusiontunx/app.yaml').then(function (content) {
             var port = '8080';
             if (content) {
                 var match = content.match(/port:\s*["']?(\d+)["']?/);
@@ -54,7 +54,7 @@ return view.extend({
 
 
         var handleAction = function (action) {
-            return fs.exec('/etc/init.d/insomclash', [action]).then(function (res) {
+            return fs.exec('/etc/init.d/fusiontunx', [action]).then(function (res) {
                 if (res.code !== 0) {
                     ui.addNotification(null, E('p', _('Command failed: %s').format(res.stderr || res.stdout)), 'error');
                     throw new Error(res.stderr || res.stdout);
@@ -65,14 +65,14 @@ return view.extend({
         };
 
         var handleStart = function () {
-            return fs.exec('/etc/init.d/insomclash', ['enable']).then(function () {
+            return fs.exec('/etc/init.d/fusiontunx', ['enable']).then(function () {
                 return handleAction('start');
             });
         };
 
         var handleStop = function () {
             return handleAction('stop').then(function () {
-                return fs.exec('/etc/init.d/insomclash', ['disable']);
+                return fs.exec('/etc/init.d/fusiontunx', ['disable']);
             });
         };
 
@@ -81,10 +81,10 @@ return view.extend({
         btnStop.onclick = ui.createHandlerFn(this, handleStop);
 
         var updateStatus = function () {
-            return callServiceList('insomclash').then(function (res) {
+            return callServiceList('fusiontunx').then(function (res) {
                 var running = false;
                 try {
-                    var instances = res.insomclash.instances;
+                    var instances = res.fusiontunx.instances;
                     for (var i in instances) {
                         if (instances[i].running) {
                             running = true;
@@ -121,14 +121,14 @@ return view.extend({
         poll.add(updateStatus, 3);
 
         return E('div', { 'class': 'cbi-map' }, [
-            E('h2', _('InsomClash Control')),
+            E('h2', _('FusionTunX Control')),
             E('div', { 'class': 'cbi-section' }, [
                 E('div', { 'class': 'cbi-value' }, [
                     E('label', { 'class': 'cbi-value-title' }, _('Service Status')),
                     E('div', { 'class': 'cbi-value-field' }, statusEl)
                 ]),
 
-                E('div', { 'class': 'cbi-section-descr' }, _('Control the InsomClash backend service.')),
+                E('div', { 'class': 'cbi-section-descr' }, _('Control the FusionTunX backend service.')),
 
                 E('div', { 'class': 'cbi-page-actions' }, [
                     btnStart, btnRestart, btnStop, btnOpen

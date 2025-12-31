@@ -1,6 +1,6 @@
 {
-    "luci-app-insomclash": {
-        "description": "Grant access to InsomClash status and control",
+    "luci-app-fusiontunx": {
+        "description": "Grant access to FusionTunX status and control",
         "read": {
             "ubus": {
                 "service": [
@@ -8,14 +8,14 @@
                 ]
             },
             "file": {
-                "/etc/init.d/insomclash": [
+                "/etc/init.d/fusiontunx": [
                     "read"
                 ]
             }
         },
         "write": {
             "file": {
-                "/etc/init.d/insomclash": [
+                "/etc/init.d/fusiontunx": [
                     "exec"
                 ]
             },

@@ -6,7 +6,7 @@ import (
 	"net"
 	"sort"
 
-	"insomclash/pkg/logger"
+	"fusiontunx/pkg/logger"
 
 	"github.com/sagernet/nftables"
 	"github.com/sagernet/nftables/expr"
