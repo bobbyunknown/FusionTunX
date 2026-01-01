@@ -52,6 +52,12 @@ jobs:
           name: fusiontunx-arch
           path: build/*.pkg.tar.zst
 
+      - name: Upload All Core Binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: fusiontunx-core-binaries
+          path: src/bin/**/*
+
   build_openwrt:
     permissions:
       contents: write
@@ -100,7 +106,6 @@ jobs:
           NO_SHFMT_CHECK: 1
           KEY_BUILD: ${{ secrets.SIGNING_KEY_SEC }}
 
-
       - name: Organize Artifacts
         run: |
           mkdir -p output
@@ -121,7 +126,7 @@ jobs:
           path: output/*
 
   aggregate_packages:
-    needs: [build_openwrt, build_packages]
+    needs: [build_packages]
     if: ${{ !cancelled() }}
     name: Aggregate All Packages
     runs-on: ubuntu-latest
@@ -145,6 +150,12 @@ jobs:
           name: fusiontunx-arch
           path: downloaded/arch
 
+      - name: Download Core Binaries
+        uses: actions/download-artifact@v4
+        with:
+          name: fusiontunx-core-binaries
+          path: downloaded/core
+
       - name: List All Files
         run: ls -R downloaded
 
@@ -161,36 +172,15 @@ jobs:
           tag_name: ${{ inputs.tag_name }}
           body: |
             # FusionTunX Release ${{ inputs.tag_name }}
-            
-            This release contains pre-built packages for OpenWrt, Debian/Ubuntu, and Arch Linux.
-            
-            ## 📦 Package Details
+
+            This release contains pre-built packages for OpenWrt, Debian/Ubuntu, Arch Linux, and standalone core binaries.
+
+            ## Package Details
             - **OpenWrt**: `.ipk` (24.10) and `.apk` (25.12) packages
             - **Debian/Ubuntu**: `.deb` packages for `amd64`, `arm64`, `armhf`
             - **Arch Linux**: `.pkg.tar.zst` packages for `x86_64`, `aarch64`, `armv7h`
-            
-            ## 🚀 How to Install
-            
-            **OpenWrt:**
-            ```bash
-            # For 24.10 (IPK)
-            opkg install fusiontunx_*.ipk
-            
-            # For 25.12 (APK)
-            apk add fusiontunx-*.apk
-            ```
-            
-            **Debian/Ubuntu:**
-            ```bash
-            sudo dpkg -i fusiontunx_*.deb
-            sudo apt-get install -f  # Fix dependencies if needed
-            ```
-            
-            **Arch Linux:**
-            ```bash
-            sudo pacman -U fusiontunx-*.pkg.tar.zst
-            ```
-            
+            - **Core Binaries**: Standalone binaries for all architectures (useful for other Linux distros)
+
             See [README](https://github.com/${{ github.repository }}) for full documentation.
           files: downloaded/**/*
         env:

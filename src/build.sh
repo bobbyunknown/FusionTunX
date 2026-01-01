@@ -12,9 +12,7 @@ npm run build
 cd ..
 
 echo "[1.5/4] Tiding Go modules..."
-cd src
 go mod tidy
-cd ..
 
 echo "[2/4] Generating Swagger docs..."
 export PATH=$HOME/go/bin:$PATH
