@@ -2,51 +2,25 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=fusiontunx
 PKG_VERSION:=1.0.3
-PKG_RELEASE:=2
+PKG_RELEASE:=4
 
 PKG_MAINTAINER:=BobbyUnknown
 PKG_LICENSE:=MIT
 
-# Mihomo version for download
+PKG_SOURCE_PROTO:=git
+PKG_SOURCE_URL:=https://github.com/bobbyunknown/FusionTunX.git
+PKG_SOURCE_VERSION:=dev
+PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+
+PKG_BUILD_DEPENDS:=node/host golang/host
+
 MIHOMO_VERSION:=v1.19.17
 
 include $(INCLUDE_DIR)/package.mk
+include $(TOPDIR)/feeds/packages/lang/golang/golang-package.mk
 
-# Architecture mapping for fusiontunx binary
-ifeq ($(ARCH),x86_64)
-  FUSIONTUNX_ARCH:=amd64
-  MIHOMO_ARCH:=amd64-v1
-else ifeq ($(ARCH),i386)
-  FUSIONTUNX_ARCH:=386
-  MIHOMO_ARCH:=386
-else ifeq ($(ARCH),aarch64)
-  FUSIONTUNX_ARCH:=arm64
-  MIHOMO_ARCH:=arm64
-else ifeq ($(ARCH),arm)
-  FUSIONTUNX_ARCH:=armv7
-  MIHOMO_ARCH:=armv7
-else ifeq ($(ARCH),mips)
-  FUSIONTUNX_ARCH:=mips
-  MIHOMO_ARCH:=mips-softfloat
-else ifeq ($(ARCH),mipsel)
-  FUSIONTUNX_ARCH:=mipsle
-  MIHOMO_ARCH:=mipsle-softfloat
-else ifeq ($(ARCH),mips64)
-  FUSIONTUNX_ARCH:=mips64
-  MIHOMO_ARCH:=mips64
-else ifeq ($(ARCH),mips64el)
-  FUSIONTUNX_ARCH:=mips64le
-  MIHOMO_ARCH:=mips64le
-else ifeq ($(ARCH),riscv64)
-  FUSIONTUNX_ARCH:=riscv64
-  MIHOMO_ARCH:=riscv64
-else
-  FUSIONTUNX_ARCH:=amd64
-  MIHOMO_ARCH:=amd64-v1
-endif
-
-# Source directories (relative to package root, not openwrt/fusiontunx)
-PKG_SOURCE_DIR:=$(CURDIR)/../..
+GO_PKG:=github.com/bobbyunknown/FusionTunX
 
 define Package/fusiontunx
   SECTION:=net
@@ -60,19 +34,35 @@ define Package/fusiontunx/description
   FusionTunX + Mihomo Core Binary
 endef
 
-define Build/Prepare
-	mkdir -p $(PKG_BUILD_DIR)
-	
-	@echo "Copying fusiontunx binary for $(ARCH) ($(FUSIONTUNX_ARCH))..."
-	$(CP) $(PKG_SOURCE_DIR)/core/fusiontunx-linux-$(FUSIONTUNX_ARCH) $(PKG_BUILD_DIR)/fusiontunx
-	chmod +x $(PKG_BUILD_DIR)/fusiontunx
-	
-	@echo "Downloading Mihomo $(MIHOMO_VERSION) for $(MIHOMO_ARCH)..."
-	wget -q -O $(PKG_BUILD_DIR)/mihomo.gz "https://github.com/MetaCubeX/mihomo/releases/download/$(MIHOMO_VERSION)/mihomo-linux-$(MIHOMO_ARCH)-$(MIHOMO_VERSION).gz"
+define Build/Compile
+	@echo "Building Vite dashboard..."
+	cd $(PKG_BUILD_DIR)/src/dash && \
+		npm install && \
+		npm run build
+
+	@echo "Preparing static files..."
+	rm -rf $(PKG_BUILD_DIR)/src/internal/ui/dist
+	cp -r $(PKG_BUILD_DIR)/src/dash/dist $(PKG_BUILD_DIR)/src/internal/ui/dist
+	chmod -R 755 $(PKG_BUILD_DIR)/src/internal/ui/dist
+
+	@echo "Installing dependencies and generating Swagger..."
+	cd $(PKG_BUILD_DIR)/src && \
+		go mod tidy && \
+		go install github.com/swaggo/swag/cmd/swag@latest && \
+		$(HOME)/go/bin/swag init -g cmd/server/main.go -o docs
+
+	@echo "Compiling FusionTunX Go binary..."
+	cd $(PKG_BUILD_DIR)/src && \
+		GOOS=linux GOARCH=$(GO_ARCH) CGO_ENABLED=1 \
+		CC=$(TARGET_CC) CXX=$(TARGET_CXX) \
+		CGO_CFLAGS="$(TARGET_CFLAGS)" \
+		CGO_LDFLAGS="$(TARGET_LDFLAGS)" \
+		go build -v -trimpath -ldflags="-s -w" -o $(PKG_BUILD_DIR)/fusiontunx ./cmd/server
+
+	@echo "Downloading Mihomo $(MIHOMO_VERSION)..."
+	wget -q -O $(PKG_BUILD_DIR)/mihomo.gz "https://github.com/MetaCubeX/mihomo/releases/download/$(MIHOMO_VERSION)/mihomo-linux-$(GO_ARCH)-$(MIHOMO_VERSION).gz"
 	gunzip -f $(PKG_BUILD_DIR)/mihomo.gz
 	chmod +x $(PKG_BUILD_DIR)/mihomo
-	
-	$(CP) -r $(PKG_SOURCE_DIR)/files/* $(PKG_BUILD_DIR)/
 
 	@echo "Downloading GeoIP assets..."
 	wget -q -O $(PKG_BUILD_DIR)/country.mmdb https://github.com/rtaserver/meta-rules-dat/releases/latest/download/country.mmdb
@@ -100,9 +90,6 @@ define Build/Prepare
 	rm -rf $(PKG_BUILD_DIR)/temp_yacd $(PKG_BUILD_DIR)/yacd.zip
 endef
 
-define Build/Compile
-endef
-
 define Package/fusiontunx/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_DIR) $(1)/usr/share/fusiontunx
@@ -114,15 +101,15 @@ define Package/fusiontunx/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/fusiontunx $(1)/usr/share/fusiontunx/fusiontunx
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/mihomo $(1)/usr/bin/mihomo
 
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/app.yaml $(1)/etc/fusiontunx/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/app.yaml $(1)/etc/fusiontunx/
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/country.mmdb $(1)/etc/fusiontunx/
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/geoip.dat $(1)/etc/fusiontunx/
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/geosite.dat $(1)/etc/fusiontunx/
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/geoip.metadb $(1)/etc/fusiontunx/
 
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/configs/* $(1)/etc/fusiontunx/configs/
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/proxy_providers/* $(1)/etc/fusiontunx/proxy_providers/
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/rule_providers/* $(1)/etc/fusiontunx/rule_providers/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/configs/* $(1)/etc/fusiontunx/configs/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/proxy_providers/* $(1)/etc/fusiontunx/proxy_providers/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/rule_providers/* $(1)/etc/fusiontunx/rule_providers/
 
 	$(CP) -r $(PKG_BUILD_DIR)/ui/* $(1)/etc/fusiontunx/ui/
 endef
