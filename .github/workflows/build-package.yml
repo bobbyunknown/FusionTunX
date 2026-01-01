@@ -15,6 +15,11 @@ on:
   push:
     branches:
       - main
+      - dev
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build_packages:
@@ -23,8 +28,6 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        with:
-          ref: main
 
       - name: Install Dependencies
         run: sudo apt-get update && sudo apt-get install -y make wget curl unzip tar binutils zstd
@@ -44,14 +47,7 @@ jobs:
           name: fusiontunx-arch
           path: build/*.pkg.tar.zst
 
-      - name: Upload Core Binaries for OpenWrt
-        uses: actions/upload-artifact@v4
-        with:
-          name: fusiontunx-core-binaries
-          path: core/*
-
   build_openwrt:
-    needs: build_packages
     permissions:
       contents: write
     name: Build OpenWrt ${{ matrix.arch }}-${{ matrix.branch }}
@@ -80,12 +76,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: main
-
-      - name: Download Core Binaries
-        uses: actions/download-artifact@v4
-        with:
-          name: fusiontunx-core-binaries
-          path: core
 
       - name: Setup Feed Structure
         run: |
@@ -200,5 +190,3 @@ jobs:
           files: downloaded/**/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
