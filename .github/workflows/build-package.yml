@@ -95,7 +95,7 @@ jobs:
           cp -rf openwrt/luci-app-fusiontunx/* feeds/luci-app-fusiontunx/
 
       - name: Build Package
-        uses: openwrt/gh-action-sdk@main
+        uses: bobbyunknown/gh-action-sdk@main
         env:
           ARCH: ${{ matrix.arch }}-${{ matrix.branch }}
           FEEDNAME: fusiontunx
