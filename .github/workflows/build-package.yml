@@ -103,7 +103,7 @@ jobs:
           INDEX: 1
           NO_SHFMT_CHECK: 1
           KEY_BUILD: ${{ secrets.SIGNING_KEY_SEC }}
-          # V: s
+          V: s
 
       - name: Organize Artifacts
         run: |
