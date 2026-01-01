@@ -30,7 +30,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Dependencies
-        run: sudo apt-get update && sudo apt-get install -y make wget curl unzip tar binutils zstd golang-go
+        run: sudo apt-get update && sudo apt-get install -y make wget curl unzip tar binutils zstd golang nodejs npm
 
       - name: Install Swag (Swagger Generator)
         run: |
