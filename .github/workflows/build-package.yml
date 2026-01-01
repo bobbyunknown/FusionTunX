@@ -126,7 +126,7 @@ jobs:
           path: output/*
 
   aggregate_packages:
-    needs: [build_packages]
+    needs: [build_packages, build_openwrt]
     if: ${{ !cancelled() }}
     name: Aggregate All Packages
     runs-on: ubuntu-latest
