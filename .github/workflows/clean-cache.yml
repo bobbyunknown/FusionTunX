@@ -23,9 +23,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "🧹 Cleaning GitHub Actions cache..."
+          set -euo pipefail
           
-          # Get repository info
           REPO="${{ github.repository }}"
           BRANCH="${{ inputs.branch }}"
           PATTERN="${{ inputs.cache_key_pattern }}"
@@ -34,63 +33,57 @@ jobs:
           echo "Branch filter: ${BRANCH:-all branches}"
           echo "Pattern filter: ${PATTERN:-all caches}"
           
-          # List all caches
-          echo ""
-          echo "📋 Listing caches..."
-          gh cache list --repo "$REPO" --limit 100
+          gh cache list --repo "$REPO" --limit 100 || echo "No caches found"
           
-          # Delete caches
-          echo ""
-          echo "🗑️  Deleting caches..."
+          DELETED_FILE=$(mktemp)
+          FAILED_FILE=$(mktemp)
+          echo "0" > "$DELETED_FILE"
+          echo "0" > "$FAILED_FILE"
           
-          DELETED=0
-          FAILED=0
+          LIMIT=1000
           
-          # Get cache list in JSON format
-          CACHES=$(gh cache list --repo "$REPO" --limit 100 --json id,key,ref)
-          
-          # Parse and delete each cache
-          echo "$CACHES" | jq -r '.[] | @json' | while read -r cache; do
+          while IFS= read -r cache; do
             CACHE_ID=$(echo "$cache" | jq -r '.id')
             CACHE_KEY=$(echo "$cache" | jq -r '.key')
             CACHE_REF=$(echo "$cache" | jq -r '.ref')
             
-            # Apply branch filter
             if [ -n "$BRANCH" ] && [[ "$CACHE_REF" != *"$BRANCH"* ]]; then
               continue
             fi
             
-            # Apply pattern filter
             if [ -n "$PATTERN" ] && [[ "$CACHE_KEY" != *"$PATTERN"* ]]; then
               continue
             fi
             
-            echo "Deleting cache: $CACHE_KEY (ID: $CACHE_ID, Ref: $CACHE_REF)"
+            echo "Deleting: $CACHE_KEY (ID: $CACHE_ID, Ref: $CACHE_REF)"
             
             if gh cache delete "$CACHE_ID" --repo "$REPO" 2>/dev/null; then
-              DELETED=$((DELETED + 1))
+              echo $(($(cat "$DELETED_FILE") + 1)) > "$DELETED_FILE"
             else
-              FAILED=$((FAILED + 1))
-              echo "  ⚠️  Failed to delete cache ID: $CACHE_ID"
+              echo $(($(cat "$FAILED_FILE") + 1)) > "$FAILED_FILE"
+              echo "Failed to delete cache ID: $CACHE_ID"
             fi
-          done
+          done < <(gh cache list --repo "$REPO" --limit "$LIMIT" --json id,key,ref | jq -c '.[]')
           
-          echo ""
-          echo "✅ Cache cleanup completed!"
-          echo "   Deleted: $DELETED"
-          echo "   Failed: $FAILED"
+          DELETED=$(cat "$DELETED_FILE")
+          FAILED=$(cat "$FAILED_FILE")
           
-          # Show remaining caches
-          echo ""
-          echo "📋 Remaining caches:"
-          gh cache list --repo "$REPO" --limit 20
+          rm -f "$DELETED_FILE" "$FAILED_FILE"
+          
+          echo "Deleted: $DELETED"
+          echo "Failed: $FAILED"
+          
+          gh cache list --repo "$REPO" --limit 20 || echo "No remaining caches"
+          
+          echo "DELETED=$DELETED" >> $GITHUB_ENV
+          echo "FAILED=$FAILED" >> $GITHUB_ENV
 
       - name: Summary
         run: |
-          echo "### 🧹 Cache Cleanup Summary" >> $GITHUB_STEP_SUMMARY
+          echo "### Cache Cleanup Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **Repository**: ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Branch filter**: ${{ inputs.branch || 'all branches' }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Pattern filter**: ${{ inputs.cache_key_pattern || 'all caches' }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Cache cleanup completed successfully! ✅" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deleted**: ${DELETED:-0}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Failed**: ${FAILED:-0}" >> $GITHUB_STEP_SUMMARY
