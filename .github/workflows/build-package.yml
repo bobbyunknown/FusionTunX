@@ -15,6 +15,11 @@ on:
   push:
     branches:
       - main
+      - dev
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build_packages:
@@ -23,11 +28,14 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        with:
-          ref: main
 
       - name: Install Dependencies
-        run: sudo apt-get update && sudo apt-get install -y make wget curl unzip tar binutils zstd
+        run: sudo apt-get update && sudo apt-get install -y make wget curl unzip tar binutils zstd golang nodejs npm
+
+      - name: Install Swag (Swagger Generator)
+        run: |
+          go install github.com/swaggo/swag/cmd/swag@latest
+          echo "$HOME/go/bin" >> $GITHUB_PATH
 
       - name: Build All Packages (Debian + Arch)
         run: make build-all
@@ -44,14 +52,13 @@ jobs:
           name: fusiontunx-arch
           path: build/*.pkg.tar.zst
 
-      - name: Upload Core Binaries for OpenWrt
+      - name: Upload All Core Binaries
         uses: actions/upload-artifact@v4
         with:
           name: fusiontunx-core-binaries
-          path: core/*
+          path: src/bin/**/*
 
   build_openwrt:
-    needs: build_packages
     permissions:
       contents: write
     name: Build OpenWrt ${{ matrix.arch }}-${{ matrix.branch }}
@@ -65,27 +72,19 @@ jobs:
           - openwrt-25.12
         arch:
           - x86_64
-          - i386_pentium-mmx
-          - aarch64_cortex-a53
+          #- i386_pentium-mmx
+          #- aarch64_cortex-a53
           - aarch64_cortex-a72
           - aarch64_generic
-          - arm_cortex-a15_neon-vfpv4
-          - arm_cortex-a9
-          - arm_cortex-a7
-          - mips_24kc
-          - mipsel_74kc
+          #- arm_cortex-a15_neon-vfpv4
+          #- arm_cortex-a9
+          #- arm_cortex-a7
+          #- mips_24kc
+          #- mipsel_74kc
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        with:
-          ref: main
-
-      - name: Download Core Binaries
-        uses: actions/download-artifact@v4
-        with:
-          name: fusiontunx-core-binaries
-          path: core
 
       - name: Setup Feed Structure
         run: |
@@ -96,7 +95,7 @@ jobs:
           cp -rf openwrt/luci-app-fusiontunx/* feeds/luci-app-fusiontunx/
 
       - name: Build Package
-        uses: openwrt/gh-action-sdk@main
+        uses: bobbyunknown/gh-action-sdk@main
         env:
           ARCH: ${{ matrix.arch }}-${{ matrix.branch }}
           FEEDNAME: fusiontunx
@@ -104,7 +103,7 @@ jobs:
           INDEX: 1
           NO_SHFMT_CHECK: 1
           KEY_BUILD: ${{ secrets.SIGNING_KEY_SEC }}
-
+          #V: s
 
       - name: Organize Artifacts
         run: |
@@ -126,7 +125,7 @@ jobs:
           path: output/*
 
   aggregate_packages:
-    needs: [build_openwrt, build_packages]
+    needs: [build_packages, build_openwrt]
     if: ${{ !cancelled() }}
     name: Aggregate All Packages
     runs-on: ubuntu-latest
@@ -150,6 +149,12 @@ jobs:
           name: fusiontunx-arch
           path: downloaded/arch
 
+      - name: Download Core Binaries
+        uses: actions/download-artifact@v4
+        with:
+          name: fusiontunx-core-binaries
+          path: downloaded/core
+
       - name: List All Files
         run: ls -R downloaded
 
@@ -166,39 +171,16 @@ jobs:
           tag_name: ${{ inputs.tag_name }}
           body: |
             # FusionTunX Release ${{ inputs.tag_name }}
-            
-            This release contains pre-built packages for OpenWrt, Debian/Ubuntu, and Arch Linux.
-            
-            ## 📦 Package Details
+
+            This release contains pre-built packages for OpenWrt, Debian/Ubuntu, Arch Linux, and standalone core binaries.
+
+            ## Package Details
             - **OpenWrt**: `.ipk` (24.10) and `.apk` (25.12) packages
             - **Debian/Ubuntu**: `.deb` packages for `amd64`, `arm64`, `armhf`
             - **Arch Linux**: `.pkg.tar.zst` packages for `x86_64`, `aarch64`, `armv7h`
-            
-            ## 🚀 How to Install
-            
-            **OpenWrt:**
-            ```bash
-            # For 24.10 (IPK)
-            opkg install fusiontunx_*.ipk
-            
-            # For 25.12 (APK)
-            apk add fusiontunx-*.apk
-            ```
-            
-            **Debian/Ubuntu:**
-            ```bash
-            sudo dpkg -i fusiontunx_*.deb
-            sudo apt-get install -f  # Fix dependencies if needed
-            ```
-            
-            **Arch Linux:**
-            ```bash
-            sudo pacman -U fusiontunx-*.pkg.tar.zst
-            ```
-            
+            - **Core Binaries**: Standalone binaries for all architectures (useful for other Linux distros)
+
             See [README](https://github.com/${{ github.repository }}) for full documentation.
           files: downloaded/**/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
